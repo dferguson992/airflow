@@ -26,6 +26,7 @@ assists users migrating to a new version.
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of contents**
 
+- [Master](#master)
 - [Airflow 2.0.0b1](#airflow-200b1)
 - [Airflow 2.0.0a1](#airflow-200a1)
 - [Airflow 1.10.13](#airflow-11013)
@@ -49,7 +50,40 @@ assists users migrating to a new version.
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
+## Master
+
+### Unify user session lifetime configuration
+
+In previous version of Airflow user session lifetime could be configured by
+`session_lifetime_days` and `force_log_out_after` options. In practise only `session_lifetime_days`
+had impact on session lifetime, but it was limited to values in day.
+We have removed mentioned options and introduced new `session_lifetime_minutes`
+option which simplify session lifetime configuration.
+
+Before
+
+ ```ini
+[webserver]
+force_log_out_after = 0
+session_lifetime_days = 30
+ ```
+
+After
+
+ ```ini
+[webserver]
+session_lifetime_minutes = 43200
+ ```
+
 ## Airflow 2.0.0b1
+
+### Rename policy to task_policy
+
+Because Airflow introduced DAG level policy (`dag_policy`) we decided to rename existing `policy`
+function to `task_policy` to make the distinction more profound and avoid any confusion.
+
+Users using cluster policy need to rename their `policy` functions in `airflow_local_settings.py`
+to `task_policy`.
 
 ### Default value for `[celery] operation_timeout` has changed to `1.0`
 

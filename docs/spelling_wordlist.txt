@@ -15,6 +15,7 @@ AppBuilder
 Arg
 Args
 Async
+Atlassian
 Auth
 AutoMlClient
 Autoscale
@@ -470,6 +471,7 @@ backfilling
 backfills
 backoff
 backport
+backported
 backreference
 backtick
 backticks
@@ -993,6 +995,7 @@ openfaas
 oper
 optimise
 ora
+orm
 orchestrator
 orgtbl
 os

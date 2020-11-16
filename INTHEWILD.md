@@ -152,6 +152,7 @@ Currently, **officially** using Airflow:
 1. [Everlane](https://everlane.com) [[@NickBenthem](https://github.com/NickBenthem)]
 1. [Experity (formerly DocuTAP)](https://www.experityhealth.com/) [[@cloneluke](https://github.com/cloneluke) & [@tobyjoliver](https://github.com/tobyjoliver)]
 1. [FanDuel](https://www.fanduel.com/)
+1. [Farfetch](https://github.com/farfetch) [[@davidmarques78](https://github.com/davidmarques78)]
 1. [Fathom Health](https://www.fathomhealth.co/)
 1. [Firestone Inventing](https://www.hsmap.com/) [[@zihengCat](https://github.com/zihengCat)]
 1. [Flipp](https://www.flipp.com) [[@sethwilsonwishabi](https://github.com/sethwilsonwishabi)]
@@ -332,6 +333,7 @@ Currently, **officially** using Airflow:
 1. [Stripe](https://stripe.com) [[@jbalogh](https://github.com/jbalogh)]
 1. [Strongmind](https://www.strongmind.com) [[@tomchapin](https://github.com/tomchapin) & [@wongstein](https://github.com/wongstein)]
 1. [Surfline](https://www.surfline.com/) [[@jawang35](https://github.com/jawang35)]
+1. [Syapse](https://www.syapse.com/) [[@zedmor](https://github.com/zedmor)]
 1. [T2 Systems](http://t2systems.com) [[@unclaimedpants](https://github.com/unclaimedpants)]
 1. [TEK](https://www.tek.fi/en) [[@telac](https://github.com/telac)]
 1. [THE ICONIC](https://www.theiconic.com.au/) [[@revathijay](https://github.com/revathijay), [@ilikedata](https://github.com/ilikedata)]

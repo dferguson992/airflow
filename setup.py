@@ -383,6 +383,10 @@ slack = [
     'slackclient>=2.0.0,<3.0.0',
 ]
 snowflake = [
+    # snowflake is not compatible with latest version.
+    # This library monkey patches the requests library, so SSL is broken globally.
+    # See: https://github.com/snowflakedb/snowflake-connector-python/issues/324
+    'requests<2.24.0',
     'snowflake-connector-python>=1.5.2',
     'snowflake-sqlalchemy>=1.1.0',
 ]
@@ -569,7 +573,6 @@ EXTRAS_REQUIREMENTS: Dict[str, List[str]] = {
     "apache.hive": hive,
     "apache.kylin": kylin,
     "apache.pinot": pinot,
-    "apache.presto": presto,
     "apache.spark": spark,
     "apache.webhdfs": webhdfs,
     'async': async_packages,
@@ -641,6 +644,7 @@ EXTRAS_REQUIREMENTS: Dict[str, List[str]] = {
     'virtualenv': virtualenv,
     'webhdfs': webhdfs,  # TODO: remove this in Airflow 2.1
     'winrm': winrm,  # TODO: remove this in Airflow 2.1
+    'yandex': yandexcloud,  # TODO: remove this in Airflow 2.1
     'yandexcloud': yandexcloud,
 }
 
@@ -673,7 +677,6 @@ EXTRAS_PROVIDERS_PACKAGES: Dict[str, Iterable[str]] = {
     "apache.hive": ["apache.hive"],
     "apache.kylin": ["apache.kylin"],
     "apache.pinot": ["apache.pinot"],
-    "apache.presto": ["apache.presto"],
     "apache.spark": ["apache.spark"],
     "apache.webhdfs": ["apache.hdfs"],
     'async': [],
@@ -685,7 +688,7 @@ EXTRAS_PROVIDERS_PACKAGES: Dict[str, Iterable[str]] = {
     'cgroups': [],
     'cloudant': ["cloudant"],
     'cncf.kubernetes': ["cncf.kubernetes"],
-    'dask': ["dask"],
+    'dask': [],
     'databricks': ["databricks"],
     'datadog': ["datadog"],
     'devel': ["cncf.kubernetes", "mysql"],
@@ -727,25 +730,26 @@ EXTRAS_PROVIDERS_PACKAGES: Dict[str, Iterable[str]] = {
     'presto': ["presto"],
     'qds': ["qubole"],  # TODO: remove this in Airflow 2.1
     'qubole': ["qubole"],
-    'rabbitmq': ["rabbitmq"],
+    'rabbitmq': [],
     'redis': ["redis"],
     'salesforce': ["salesforce"],
     'samba': ["samba"],
     'segment': ["segment"],
     'sendgrid': ["sendgrid"],
-    'sentry': ["sentry"],
+    'sentry': [],
     'singularity': ["singularity"],
     'slack': ["slack"],
     'snowflake': ["snowflake"],
-    'spark': ["spark"],
+    'spark': ["apache.spark"],
     'ssh': ["ssh"],
-    'statsd': ["statsd"],
-    'tableau': ["tableau"],
+    'statsd': [],
+    'tableau': [],
     'vertica': ["vertica"],
-    'virtualenv': ["virtualenv"],
+    'virtualenv': [],
     'webhdfs': ["apache.hdfs"],  # TODO: remove this in Airflow 2.1
     'winrm': ["microsoft.winrm"],  # TODO: remove this in Airflow 2.1
-    'yandexcloud': ["yandexcloud"],
+    'yandexcloud': ["yandex"],  # TODO: remove this in Airflow 2.1
+    'yandex': ["yandex"],
 }
 
 

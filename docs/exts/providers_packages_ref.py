@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -15,18 +14,26 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-# shellcheck source=scripts/ci/libraries/_script_init.sh
-. "$( dirname "${BASH_SOURCE[0]}" )/../libraries/_script_init.sh"
-set -euo pipefail
 
-traps::add_trap "kind::dump_kind_logs" EXIT HUP INT TERM
+from provider_yaml_utils import load_package_data  # pylint: disable=no-name-in-module
+from sphinx.application import Sphinx
 
-kind::make_sure_kubernetes_tools_are_installed
-kind::get_kind_cluster_name
-build_images::prepare_prod_build
-build_images::build_prod_images
-kind::build_image_for_kubernetes_tests
-kind::load_image_to_kind_cluster
-kind::deploy_airflow_with_helm
-kind::forward_port_to_kind_webserver
-kind::deploy_test_kubernetes_resources
+
+def _on_config_inited(app, config):
+    del app
+    jinja_context = getattr(config, 'jinja_contexts', None) or {}
+
+    jinja_context['providers_ctx'] = {'providers': load_package_data()}
+
+    config.jinja_contexts = jinja_context
+
+
+def setup(app: Sphinx):
+    """Setup plugin"""
+    app.setup_extension('sphinxcontrib.jinja')
+    app.connect("config-inited", _on_config_inited)
+    app.add_crossref_type(
+        directivename="provider",
+        rolename="provider",
+    )
+    return {'parallel_read_safe': True, 'parallel_write_safe': True}

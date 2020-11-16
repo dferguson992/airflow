@@ -44,9 +44,11 @@ This table lists pre-commit hooks used by Airflow and indicates which hooks
 require Breeze Docker images to be installed locally:
 
 =================================== ================================================================ ============
-**Hooks**                             **Description**                                                 **Breeze**
+**Hooks**                            **Description**                                                 **Breeze**
 =================================== ================================================================ ============
 ``airflow-config-yaml``               Checks that airflow config yaml is 1-1 with the code
+----------------------------------- ---------------------------------------------------------------- ------------
+``airflow-providers-available``       Checks that providers are properly declared by extras
 ----------------------------------- ---------------------------------------------------------------- ------------
 ``base-operator``                     Checks that BaseOperator is imported properly
 ----------------------------------- ---------------------------------------------------------------- ------------
@@ -87,6 +89,8 @@ require Breeze Docker images to be installed locally:
 ``doctoc``                            Refreshes the table of contents for md files.
 ----------------------------------- ---------------------------------------------------------------- ------------
 ``dont-use-safe-filter``              Don't use safe in templates.
+----------------------------------- ---------------------------------------------------------------- ------------
+``no-providers-in-core-examples``     Don't use providers imports in core example DAGs
 ----------------------------------- ---------------------------------------------------------------- ------------
 ``no-relative-imports``               Use absolute imports, not relative
 ----------------------------------- ---------------------------------------------------------------- ------------
@@ -144,7 +148,7 @@ require Breeze Docker images to be installed locally:
 ----------------------------------- ---------------------------------------------------------------- ------------
 ``setup-order``                       Checks for an order of dependencies in setup.py
 ----------------------------------- ---------------------------------------------------------------- ------------
-``setup-installation``                Checks if all the libraries in setup.py are listed in docs
+``setup-extra-packages``              Checks if all the libraries in setup.py are listed in docs
 ----------------------------------- ---------------------------------------------------------------- ------------
 ``shellcheck``                        Checks shell files with shellcheck.
 ----------------------------------- ---------------------------------------------------------------- ------------

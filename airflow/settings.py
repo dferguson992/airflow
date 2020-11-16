@@ -16,6 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 import atexit
+import functools
 import json
 import logging
 import os
@@ -24,7 +25,6 @@ import warnings
 from typing import Optional
 
 import pendulum
-import rich
 from sqlalchemy import create_engine, exc
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -96,24 +96,37 @@ STATE_COLORS = {
 }
 
 
+@functools.lru_cache(maxsize=None)
+def _get_rich_console(file):
+    # Delay imports until we need it
+    import rich.console
+
+    return rich.console.Console(file=file)
+
+
 def custom_show_warning(message, category, filename, lineno, file=None, line=None):
     """Custom function to print rich and visible warnings"""
+    # Delay imports until we need it
+    from rich.markup import escape
+
     msg = f"[bold]{line}" if line else f"[bold][yellow]{filename}:{lineno}"
-    msg += f" {category.__name__}[/bold]: {message}[/yellow]"
-    file = file or sys.stderr
-    rich.print(msg, file=file)
+    msg += f" {category.__name__}[/bold]: {escape(str(message))}[/yellow]"
+    write_console = _get_rich_console(file or sys.stderr)
+    write_console.print(msg, soft_wrap=True)
 
 
 warnings.showwarning = custom_show_warning
 
 
-def policy(task):  # pylint: disable=unused-argument
+def task_policy(task) -> None:  # pylint: disable=unused-argument
     """
     This policy setting allows altering tasks after they are loaded in
-    the DagBag. It allows administrator to rewire some task parameters.
+    the DagBag. It allows administrator to rewire some task's parameters.
+    Alternatively you can raise ``AirflowClusterPolicyViolation`` exception
+    to stop DAG from being executed.
 
     To define policy, add a ``airflow_local_settings`` module
-    to your PYTHONPATH that defines this ``policy`` function.
+    to your PYTHONPATH that defines this ``task_policy`` function.
 
     Here are a few examples of how this can be useful:
 
@@ -122,7 +135,29 @@ def policy(task):  # pylint: disable=unused-argument
         tasks get wired to the right workers
     * You could enforce a task timeout policy, making sure that no tasks run
         for more than 48 hours
-    * ...
+
+    :param task: task to be mutated
+    :type task: airflow.models.baseoperator.BaseOperator
+    """
+
+
+def dag_policy(dag) -> None:  # pylint: disable=unused-argument
+    """
+    This policy setting allows altering DAGs after they are loaded in
+    the DagBag. It allows administrator to rewire some DAG's parameters.
+    Alternatively you can raise ``AirflowClusterPolicyViolation`` exception
+    to stop DAG from being executed.
+
+    To define policy, add a ``airflow_local_settings`` module
+    to your PYTHONPATH that defines this ``dag_policy`` function.
+
+    Here are a few examples of how this can be useful:
+
+    * You could enforce default user for DAGs
+    * Check if every DAG has configured tags
+
+    :param dag: dag to be mutated
+    :type dag: airflow.models.dag.DAG
     """
 
 
@@ -135,6 +170,9 @@ def task_instance_mutation_hook(task_instance):  # pylint: disable=unused-argume
     to your PYTHONPATH that defines this ``task_instance_mutation_hook`` function.
 
     This could be used, for instance, to modify the task instance during retries.
+
+    :param task_instance: task instance to be mutated
+    :type task_instance: airflow.models.taskinstance.TaskInstance
     """
 
 
@@ -338,6 +376,17 @@ def import_local_settings():
             for k, v in airflow_local_settings.__dict__.items():
                 if not k.startswith("__"):
                     globals()[k] = v
+
+        # TODO: Remove once deprecated
+        if "policy" in globals() and "task_policy" not in globals():
+            warnings.warn(
+                "Using `policy` in airflow_local_settings.py is deprecated. "
+                "Please rename your `policy` to `task_policy`.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            globals()["task_policy"] = globals()["policy"]
+            del globals()["policy"]
 
         log.info("Loaded airflow_local_settings from %s .", airflow_local_settings.__file__)
     except ImportError:

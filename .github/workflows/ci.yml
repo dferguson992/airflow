@@ -102,7 +102,7 @@ jobs:
       pullRequestLabels: ${{ steps.source-run-info.outputs.pullRequestLabels }}
     steps:
       - name: "Get information about the PR"
-        uses: potiuk/get-workflow-origin@2ef0b065db6b688a2231f8a7f464df1aac254328  # v1_2
+        uses: potiuk/get-workflow-origin@588cc14f9f1cdf1b8be3db816855e96422204fec  # v1_3
         id: source-run-info
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -762,43 +762,36 @@ jobs:
       - name: "Setup python"
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ env.PYTHON_MAJOR_MINOR_VERSION }}
+          python-version: ${{ needs.build-info.outputs.defaultPythonVersion }}
       - name: "Free space"
         run: ./scripts/ci/tools/ci_free_space_on_ci.sh
-      - name: "Setup Kind Cluster ${{ env.KIND_VERSION }}"
-        uses: engineerd/setup-kind@v0.4.0
-        with:
-          version: "${{ env.KIND_VERSION }}"
-          name: airflow-python-${{matrix.python-version}}-${{matrix.kubernetes-version}}
-          config: "scripts/ci/kubernetes/kind-cluster-conf.yaml"
       - name: "Prepare PROD Image"
         run: ./scripts/ci/images/ci_prepare_prod_image_on_ci.sh
-      - name: "Deploy airflow to cluster"
-        id: deploy-app
-        run: ./scripts/ci/kubernetes/ci_deploy_app_to_kubernetes.sh
+      - name: "Setup cluster and deploy Airflow"
+        id: setp-cluster-deploy-app
+        run: ./scripts/ci/kubernetes/ci_setup_cluster_and_deploy_airflow_to_kubernetes.sh
         env:
           # We have the right image pulled already by the previous step
           SKIP_BUILDING_PROD_IMAGE: "true"
-          # due to some instabilities, in CI we try to increase port numbers when trying to establish
-          # port forwarding
-          INCREASE_PORT_NUMBER_FOR_KUBERNETES: "true"
       - name: "Cache virtualenv for kubernetes testing"
         uses: actions/cache@v2
         env:
-          cache-name: cache-kubernetes-tests-virtualenv-v6
+          cache-name: cache-kubernetes-tests-v7-master
         with:
-          path: .build/.kubernetes_venv
-          key: "${{ env.cache-name }}-${{ github.job }}-${{ hashFiles('setup.py') }}"
+          path: ".build/.kubernetes_venv*"
+          key: "venv-${{ env.cache-name }}-${{ github.job }}-${{ hashFiles('setup.py') }}\
+-${{ needs.build-info.outputs.defaultPythonVersion }}"
       - name: "Cache bin folder with tools for kubernetes testing"
         uses: actions/cache@v2
         env:
-          cache-name: cache-kubernetes-tests-bin-v6
+          cache-name: cache-kubernetes-tests-v7-master
         with:
-          path: .build/bin
-          key: "${{ env.cache-name }}-${{ github.job }}-${{ hashFiles('setup.py') }}\
+          path: ".build/bin"
+          key: "bin-${{ env.cache-name }}-${{ github.job }}-${{ hashFiles('setup.py') }}\
+-${{ needs.build-info.outputs.defaultPythonVersion }}\
 -${{ needs.build-info.outputs.defaultKindVersion }}\
 -${{ needs.build-info.outputs.defaultHelmVersion }}\
--$${{ matrix.kubernetes-version }}"
+-${{ matrix.kubernetes-version }}"
       - name: "Kubernetes Tests"
         run: ./scripts/ci/kubernetes/ci_run_kubernetes_tests.sh
       - name: "Upload KinD logs"
